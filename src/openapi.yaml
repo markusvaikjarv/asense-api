@@ -1,0 +1,207 @@
+openapi: '3.0.1'
+info:
+  version: 0.0.1
+  title: Stations API
+tags:
+  - name: stations
+    description: stations
+security:
+  - bearerAuth: []
+
+paths:
+  /api/stations:
+    get:
+      tags:
+        - stations
+      description: Get stations
+      responses:
+        '200':
+          description: All stations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Station'
+    post:
+      tags:
+        - stations
+      description: Add station
+      requestBody:
+        description: Parameters for the station
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewStation'
+
+      responses:
+        '201':
+          description: Created station
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Station'
+  /api/stations/{id}:
+    get:
+      tags:
+        - stations
+      description: Get station
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+            example: 023b1c24-f94f-4481-b980-86f4e0a143dc
+          required: true
+          description: ID if the station
+      responses:
+        '200':
+          description: Requested station
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Station'
+        '404':
+          description: Station not found
+    put:
+      tags:
+        - stations
+      description: Modify station
+      requestBody:
+        description: Parameters for the station
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Station'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+            example: 023b1c24-f94f-4481-b980-86f4e0a143dc
+          required: true
+          description: ID if the station
+      responses:
+        '200':
+          description: Modified station
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Station'
+        '404':
+          description: Station not found
+        '422':
+          description: Unprocessable request - make sure the id in path and body match
+    delete:
+      tags:
+        - stations
+      description: Delete station
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+            example: 023b1c24-f94f-4481-b980-86f4e0a143dc
+          required: true
+          description: ID if the station
+      responses:
+        '204':
+          description: Station deleted
+        '404':
+          description: Station not found
+components:
+  securitySchemes:
+    bearerAuth:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: 'Authorization header value needs to follow format: Bearer {apiKey}'
+  schemas:
+    Station:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID of the station
+          example: 023b1c24-f94f-4481-b980-86f4e0a143dc
+          format: uuid
+        name:
+          type: string
+          example: Migrol - Regensbergstrasse
+          description: Name of the station
+        city:
+          type: string
+          example: Zurich
+          description: Name of the city
+        street:
+          type: string
+          example: Regensbergstrasse 240
+          description: Name of the street and house number
+        latitude:
+          type: number
+          example: 47.373878
+          description: Coordinates - latitude
+        longitude:
+          type: number
+          example: 8.545094
+          description: Coordinates - longitude
+        pumps:
+          $ref: '#/components/schemas/Pumps'
+      required:
+        - id
+        - name
+        - latitude
+        - longitude
+    NewStation:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Migrol - Regensbergstrasse
+          description: Name of the station
+        city:
+          type: string
+          example: Zurich
+          description: Name of the city
+        street:
+          type: string
+          example: Regensbergstrasse 240
+          description: Name of the street and house number
+        latitude:
+          type: number
+          example: 47.373878
+          description: Coordinates - latitude
+        longitude:
+          type: number
+          example: 8.545094
+          description: Coordinates - longitude
+        pumps:
+          $ref: '#/components/schemas/Pumps'
+      required:
+        - name
+        - latitude
+        - longitude
+    Pumps:
+      type: object
+      properties:
+        GAS_95:
+          $ref: '#/components/schemas/PumpConfig'
+        GAS_98:
+          $ref: '#/components/schemas/PumpConfig'
+        DIESEL:
+          $ref: '#/components/schemas/PumpConfig'
+    PumpConfig:
+      type: object
+      properties:
+        price:
+          type: number
+          description: Fuel price per liter in CHF
+          example: 1.43
+        active:
+          type: boolean
+          description: Determines wether pump is active
